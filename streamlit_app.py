@@ -10,7 +10,6 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-# Conectar ao Snowflake utilizando st.secrets
 snowflake_config = {
     "user": st.secrets["snowflake"]["user"],
     "password": st.secrets["snowflake"]["password"],
@@ -21,6 +20,7 @@ snowflake_config = {
     "role": st.secrets["snowflake"]["role"],
     "client_session_keep_alive": st.secrets["snowflake"].get("client_session_keep_alive", False)
 }
+
 
 # Estabelece a sessão
 session = Session.builder.configs(snowflake_config).create()
