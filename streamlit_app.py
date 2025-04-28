@@ -1,5 +1,8 @@
 # Import python packages
 import streamlit as st
+import time
+import requests
+from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 
 # Título do app
@@ -11,9 +14,7 @@ name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
 # Conectar ao Snowflake
-cnx = st.connection("snowflake")
-session = cnx.session()
-
+session = get_active_session()
 
 # Pegar as frutas disponíveis
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
@@ -44,5 +45,26 @@ if st.button('Submit Order'):
                 """
             ).collect()
             st.success('Your Smoothie is ordered!', icon="✅")
+            
         except Exception as e:
             st.error(f"Error inserting order: {e}")
+
+# ===== Novo bloco para pegar dados da API externo =====
+# Tenta fazer a requisição algumas vezes antes de desistir
+MAX_ATTEMPTS = 3
+attempt = 0
+success = False
+
+while attempt < MAX_ATTEMPTS and not success:
+    try:
+        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon", timeout=5)
+        smoothiefroot_response.raise_for_status()  # lança erro para códigos HTTP 4xx e 5xx
+        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        success = True
+    except requests.exceptions.RequestException as e:
+        attempt += 1
+        st.warning(f"Attempt {attempt}: Could not fetch data. Error: {e}")
+        time.sleep(2)  # espera 2 segundos antes de tentar de novo
+
+if not success:
+    st.error("Failed to fetch fruit data after several attempts. Continuing without it.")
