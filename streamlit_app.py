@@ -1,5 +1,5 @@
-# Import python packages
 import streamlit as st
+from snowflake.snowpark import Session
 from snowflake.snowpark.functions import col
 
 # Título do app
@@ -10,10 +10,20 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-# Conectar ao Snowflake
-cnx = st.connection("snowflake")
-session = cnx.session()
+# Conectar ao Snowflake utilizando st.secrets
+snowflake_config = {
+    "user": st.secrets["snowflake"]["user"],
+    "password": st.secrets["snowflake"]["password"],
+    "account": st.secrets["snowflake"]["account"],
+    "warehouse": st.secrets["snowflake"]["warehouse"],
+    "database": st.secrets["snowflake"]["database"],
+    "schema": st.secrets["snowflake"]["schema"],
+    "role": st.secrets["snowflake"]["role"],
+    "client_session_keep_alive": st.secrets["snowflake"].get("client_session_keep_alive", False)
+}
 
+# Estabelece a sessão
+session = Session.builder.configs(snowflake_config).create()
 
 # Pegar as frutas disponíveis
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
@@ -46,9 +56,8 @@ if st.button('Submit Order'):
             st.success('Your Smoothie is ordered!', icon="✅")
         except Exception as e:
             st.error(f"Error inserting order: {e}")
-            
-import request
+
+import requests
 
 smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
 st.text(smoothiefroot_response.json())
-
