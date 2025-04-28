@@ -10,7 +10,7 @@ name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
 # Conectar ao Snowflake usando st.connection
-cnx = st.connection("snowflake", type="snowflake")
+cnx = st.connection("snowflake")
 session = cnx.session  # <-- Aqui! pega a session já pronta
 
 # Pega as frutas disponíveis
