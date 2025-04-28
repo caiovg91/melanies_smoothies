@@ -1,5 +1,4 @@
 import streamlit as st
-from snowflake.snowpark import Session
 from snowflake.snowpark.functions import col
 
 # Título do app
@@ -10,23 +9,11 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-
+# Conectar ao Snowflake usando st.connection
 cnx = st.connection("snowflake", type="snowflake")
+session = cnx.session  # <-- Aqui! pega a session já pronta
 
-connection_parameters = {
-    "account": "GPFQBWR-AOB07848",
-    "user": "caiovg91",
-    "password": "@Eclipse18071991",
-    "warehouse": "COMPUTE_WH",
-    "database": "SMOOTHIES",
-    "schema": "PUBLIC",
-    "role": "SYSADMIN",
-    "client_session_keep_alive": True
-}
-
-session = Session.builder.configs(connection_parameters).create()
-
-# Agora você pode usar `session`
+# Pega as frutas disponíveis
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 
 ingredients_list = st.multiselect(
@@ -43,10 +30,7 @@ if st.button('Submit Order'):
     elif len(ingredients_list) > 6:
         st.error("You can choose up to 6 ingredients only.")
     else:
-        # Concatena os ingredientes em string
         ingredients_string = ', '.join(ingredients_list)
-
-        # Cria e executa a query de insert
         try:
             session.sql(
                 f"""
@@ -58,6 +42,7 @@ if st.button('Submit Order'):
         except Exception as e:
             st.error(f"Error inserting order: {e}")
 
+# Faz chamada externa
 import requests
 
 smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
