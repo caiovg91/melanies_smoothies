@@ -10,9 +10,18 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-# Conectar ao Snowflake
-cnx = st.connection("snowflake")
+cnx = st.connection("snowflake", type="snowflake", 
+    account="GPFQBWR-AOB07848",
+    user="caiovg91",
+    password="@Eclipse18071991",
+    warehouse="COMPUTE_WH",
+    database="SMOOTHIES",
+    schema="PUBLIC",
+    role="SYSADMIN",
+    client_session_keep_alive=True
+)
 session = cnx.session()
+
 
 
 # Pegar as frutas disponíveis
