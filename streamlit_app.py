@@ -10,9 +10,18 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-# Conexão automática via secrets
-cnx = st.connection("snowflake", type="snowflake")
-session = cnx.session()
+connection_parameters = {
+    "account": "GPFQBWR-AOB07848",
+    "user": "caiovg91",
+    "password": "@Eclipse18071991",
+    "warehouse": "COMPUTE_WH",
+    "database": "SMOOTHIES",
+    "schema": "PUBLIC",
+    "role": "SYSADMIN",
+    "client_session_keep_alive": True
+}
+
+session = Session.builder.configs(connection_parameters).create()
 
 # Agora você pode usar `session`
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
