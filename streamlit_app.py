@@ -1,7 +1,6 @@
 # Import python packages
 import streamlit as st
 from snowflake.snowpark.functions import col
-import request
 
 # Título do app
 st.title(f"Customize Your Smoothie! :cup_with_straw:")
@@ -47,6 +46,8 @@ if st.button('Submit Order'):
             st.success('Your Smoothie is ordered!', icon="✅")
         except Exception as e:
             st.error(f"Error inserting order: {e}")
+            
+import request
 
 smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
 st.text(smoothiefroot_response.json())
