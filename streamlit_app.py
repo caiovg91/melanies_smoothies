@@ -55,14 +55,15 @@ if st.button('Submit Order'):
 import requests
 
 if ingredients_list:
-    ingredients_string = ''
-    
     for fruit_chosen in ingredients_list:
-        ingredients_string += fruit_chosen + ' '
-
-        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
+        search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
         st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
-        
+
         st.subheader(fruit_chosen + ' Nutrition Information')
-        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
-        fv_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
+
+        try:
+            fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
+            fruityvice_response.raise_for_status()
+            st.dataframe(data=fruityvice_response.json(), use_container_width=True)
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not retrieve nutrition info for {fruit_chosen}: {e}")
