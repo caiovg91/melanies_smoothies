@@ -47,12 +47,18 @@ if st.button('Submit Order'):
 import requests
 
 if ingredients_list:
-    ingredients_string = ''
-    
+    st.subheader("Nutritional Info of Selected Fruits")
     for fruit_chosen in ingredients_list:
-        ingredients_string += fruit_chosen
-        smoothiefroot_response = requests.get("https://www.fruityvice.com/api/fruit/{fruit_chosen.lower()}")
-        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        try:
+            response = requests.get(f"https://www.fruityvice.com/api/fruit/{fruit_chosen.lower()}", timeout=5)
+            if response.status_code == 200:
+                fruit_data = response.json()
+                st.markdown(f"**{fruit_chosen}**")
+                st.dataframe(fruit_data, use_container_width=True)
+            else:
+                st.warning(f"No data found for {fruit_chosen}.")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Error fetching data for {fruit_chosen}: {e}")
 
 
 
