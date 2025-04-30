@@ -11,7 +11,8 @@ st.write('The name on your Smoothie will be:', name_on_order)
 
 # Conectar ao Snowflake usando st.connection
 cnx = st.connection("snowflake")
-session = cnx.session  # <-- Aqui! pega a session já pronta
+session = cnx.session()  # Corrigido: chamada do método com parênteses
+
 
 # Pega as frutas disponíveis
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
@@ -45,5 +46,17 @@ if st.button('Submit Order'):
 # Faz chamada externa
 import requests
 
-smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
-st.text(smoothiefroot_response.json())
+if ingredients_list:
+    ingredients_string = ''
+    
+    for fruit_chosen in ingredients_list:
+        ingredients_string += fruit_chosen
+        smoothiefroot_response = requests.get("https://www.fruityvice.com/api/fruit/watermelon")
+        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+
+
+
+
+
+
+
