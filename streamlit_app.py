@@ -56,14 +56,26 @@ import requests
 
 if ingredients_list:
     for fruit_chosen in ingredients_list:
-        search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
-        st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
+        search_on_series = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON']
+        
+        if search_on_series.empty:
+            st.warning(f"No search key found for {fruit_chosen}. Skipping.")
+            continue
+        
+        search_on = search_on_series.iloc[0]
 
-        st.subheader(fruit_chosen + ' Nutrition Information')
+        if not isinstance(search_on, str) or not search_on.strip():
+            st.warning(f"Invalid search key for {fruit_chosen}. Skipping.")
+            continue
+
+        st.write(f"The search value for {fruit_chosen} is '{search_on}'.")
+
+        st.subheader(f"{fruit_chosen} Nutrition Information")
 
         try:
-            fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
+            fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on.strip())
             fruityvice_response.raise_for_status()
             st.dataframe(data=fruityvice_response.json(), use_container_width=True)
         except requests.exceptions.RequestException as e:
             st.error(f"Could not retrieve nutrition info for {fruit_chosen}: {e}")
+
