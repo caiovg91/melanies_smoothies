@@ -26,30 +26,10 @@ pd_df=my_dataframe.to_pandas()
 
 
 ingredients_list = st.multiselect(
-    'Choose up to 6 ingredients:',
-    my_dataframe.to_pandas()['FRUIT_NAME'].tolist()  # transforma em lista de strings
-)
-
-# Botão de envio
-if st.button('Submit Order'):
-    if not name_on_order.strip():
-        st.error("Please enter a name for the smoothie.")
-    elif len(ingredients_list) == 0:
-        st.error("Please select at least one ingredient.")
-    elif len(ingredients_list) > 6:
-        st.error("You can choose up to 6 ingredients only.")
-    else:
-        ingredients_string = ', '.join(ingredients_list)
-        try:
-            session.sql(
-                f"""
-                INSERT INTO smoothies.public.orders (ingredients, name_on_order)
-                VALUES ('{ingredients_string}', '{name_on_order}')
-                """
-            ).collect()
-            st.success('Your Smoothie is ordered!', icon="✅")
-        except Exception as e:
-            st.error(f"Error inserting order: {e}")
+    'Choose up to 5 ingredients:'
+    , my_dataframe
+    , max_selections=5
+    )
 
 # Faz chamada externa
 import requests
@@ -64,8 +44,32 @@ if ingredients_list:
         #st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
         
         st.subheader(fruit_chosen + ' Nutrition Information')
-        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + search_on)
-        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
+        sf_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
+        
+
+# Botão de envio
+if st.button('Submit Order'):
+    if not name_on_order.strip():
+        st.error("Please enter a name for the smoothie.")
+    elif len(ingredients_list) == 0:
+        st.error("Please select at least one ingredient.")
+    elif len(ingredients_list) > 5:
+        st.error("You can choose up to 5 ingredients only.")
+    else:
+        ingredients_string = ', '.join(ingredients_list)
+        try:
+            session.sql(
+                f"""
+                INSERT INTO smoothies.public.orders (ingredients, name_on_order)
+                VALUES ('{ingredients_string}', '{name_on_order}')
+                """
+            ).collect()
+            st.success('Your Smoothie is ordered!', icon="✅")
+        except Exception as e:
+            st.error(f"Error inserting order: {e}")
+
+
 
 
 
